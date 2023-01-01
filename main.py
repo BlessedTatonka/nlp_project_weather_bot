@@ -8,6 +8,8 @@ import os
 
 import telebot
 from src.bot import BotState
+from modules.ydisk_photo_module import add_photo_to_disk
+
 
 class BotConfig:
     API_KEY = os.getenv('TELEGRAM_API_TOKEN')
@@ -15,6 +17,7 @@ class BotConfig:
 
 bot = telebot.TeleBot(BotConfig.API_KEY)
 bot_state = BotState()
+
 
 @bot.message_handler(commands=['help'])
 def send_help(message):
@@ -31,9 +34,22 @@ def get_text_messages(message):
 
     if response is not None:
         if responce_type == 'message':
-            bot.send_message(message.from_user.id, response)
+            bot.reply_to(message, response)
         elif responce_type == 'photo':
             bot.send_photo(message.chat.id, response)
+
+
+@bot.message_handler(content_types=['photo'])
+def add_photo(message):
+    try:
+        text = message.caption
+        fileID = message.photo[-1].file_id
+        file_info = bot.get_file(fileID)
+        downloaded_file = bot.download_file(file_info.file_path)
+        response = add_photo_to_disk(text, downloaded_file)
+        bot.reply_to(message, response)
+    except:
+        pass
 
 print('Bot polling is set up')
 bot.polling(none_stop=True, interval=1)

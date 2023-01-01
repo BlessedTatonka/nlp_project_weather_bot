@@ -1,5 +1,8 @@
 from model.inference import predict_message_type, load_model
-from src.util import get_photo_response, get_weather_response
+
+from modules.dialog_module import generate_conversation_response
+from modules.weather_module import get_weather_response
+from modules.ydisk_photo_module import get_photo_response
 
 class UserState:
     def __init__(self, user_id, text):
@@ -9,6 +12,7 @@ class UserState:
         self.reset_weather_request()
         self.is_alive = False
         self.is_waiting = False
+        self.conversation = []
 
     def reset_weather_request(self):
         self.weather_request = {
@@ -21,6 +25,7 @@ class UserState:
         self.intent = None
         self.reset_weather_request()
         self.is_waiting = False
+        self.conversation = []
         # self.is_alive = True
 
     def update(self, text, intent):
@@ -53,17 +58,17 @@ class BotState:
         else:
             intent = self.get_intent(text)
 
-            if not user.is_alive and intent == 'greeting':
-                response = self.process_greeting(user)
-            elif user.is_alive:
-                if intent == 'goodbye':
-                    response = self.process_goodbye(user)
-                elif intent == 'get_photo':
-                    response, response_type = self.process_get_photo(user)
-                elif intent == 'get_weather':
-                    response = self.process_get_weather(user)
-                elif intent == 'no_category':
-                    response = self.process_no_category(user)
+            # if not user.is_alive and intent == 'greeting':
+            #     response = self.process_greeting(user)
+            # elif user.is_alive:
+            if intent == 'get_photo':
+                response, response_type = self.process_get_photo(user)
+            # elif intent == 'goodbye':
+            #     response = self.process_goodbye(user)
+            # elif intent == 'get_weather':
+            #     response = self.process_get_weather(user)
+            else:
+                response = self.process_no_category(user)
 
         return response, response_type
 
@@ -126,12 +131,16 @@ class BotState:
 
 
     def process_no_category(self, user):
-        response = 'Прости, я не понимаю'
+        # user.conversation = user.conversation[-3:]
+        user.conversation = []
+        user.conversation.append('@@ПЕРВЫЙ@@' + user.text)
+        conversation = generate_conversation_response(user.conversation)
+        response = conversation.split('@@ВТОРОЙ@@')[-1].split('@')[0]
+        # user.conversation.append('@@ВТОРОЙ@@' + response)
         return response
         
 
     def get_intent(self, text):
         intent = predict_message_type(model=self.model, text=text)
         return intent
-
     

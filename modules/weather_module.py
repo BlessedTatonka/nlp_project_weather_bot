@@ -1,64 +1,14 @@
+import os
 from src.text_processor import process
 import requests
-import random
 import json
 import datetime
 from deep_translator import GoogleTranslator
-import os
-
-class YDiskConfig:
-    API_KEY = os.getenv('YDISK_API_TOKEN')
-    BASE_REQUEST = 'https://cloud-api.yandex.net/v1/disk/resources'
-    ROOT_DIR = 'photo/photos_hse_nlp'
-    headers = {
-        'Accept': 'application/json',
-        'Authorization': f'{API_KEY}'
-    }
 
 
 class WeatherConfig:
     API_KEY = os.getenv('WEATHER_API_TOKEN')
     BASE_URL = 'https://weather.visualcrossing.com/VisualCrossingWebServices/rest/services/timeline'
-
-
-def get_photo_response(text):
-    categories = get_categories()
-
-    for token in text.split(' '):
-        prep_token = process(token, correct=False)[0]
-        print(f'prep_token for {text} is {prep_token}')
-        for key in categories.keys():
-            if (prep_token in key or key in prep_token) and len(prep_token) > 2:
-                return get_photo(categories[key])
-
-    return None
-
-
-def get_categories():
-    response = requests.get(f'{YDiskConfig.BASE_REQUEST}?path={YDiskConfig.ROOT_DIR}&limit=1000',
-                                headers=YDiskConfig.headers)
-    values = []
-    for item in response.json()['_embedded']['items']:
-        values.append(item['name'])
-
-    categories = {}
-    for item in values:
-        categories[process(item, correct=False)[0]] = item
-
-    return categories
-
-
-def get_photo(category, k=None):
-    response = requests.get(f'{YDiskConfig.BASE_REQUEST}?path={YDiskConfig.ROOT_DIR}/{category}&limit=1000',
-                                headers=YDiskConfig.headers)
-    elements = response.json()['_embedded']['items']
-
-    category_len = response.json()['_embedded']['total'] 
-
-    if k is None:
-        k = random.randint(0, category_len - 1)
-
-    return elements[k]['file']
 
 
 def get_weather_response(text, weather_request):
@@ -82,7 +32,6 @@ def get_weather_response(text, weather_request):
             response = 'API не смог найти такой город, видимо он очень маленький'
             location = 'None'
 
-    # return get_weather(location, from_date, to_date)
     weather_request['location'] = location
     weather_request['dates'] = dates
     return response
@@ -102,6 +51,7 @@ def get_location(text):
     return location
 
 
+## TODO REMOVE THIS WITH SOME LIBRARY LIKE NATASHA
 accordance = {
     'сегодня': 0,
     'завтра': 1,
@@ -147,7 +97,6 @@ def get_dates(text):
             if prep_token == process(key)[0]:
                 to_date = datetime.date.today() + datetime.timedelta(days=accordance[key])
 
-    print(to_date)
     return from_date, to_date
 
 
@@ -168,15 +117,14 @@ def get_weather(location, dates):
         description = day['description']
         translated_description = GoogleTranslator(source='en', target='ru').translate(text=description)
         feelslike = day['feelslike']
-        # humidity = day['humidity']
         windspeed = day['windspeed']
 
-
         res += f'{day["datetime"]}\n'
-        res + f'Средняя температура будет {tempavg}\n'
+        res += f'Средняя температура будет {tempavg}\n'
         res += f'{translated_description}\n'
 
         res += '' + delimeter
 
     return res
+
     

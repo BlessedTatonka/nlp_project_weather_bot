@@ -7,7 +7,7 @@ from nltk.stem.snowball import SnowballStemmer
 class _Preload():
     def __init__(self):
         nltk.download('punkt')
-        nltk.download('stopwords')
+        # nltk.download('stopwords')
         self.spell = Speller(lang='ru')
         self.stemmer = SnowballStemmer("russian")
 
