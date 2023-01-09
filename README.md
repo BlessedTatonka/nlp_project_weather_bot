@@ -1,4 +1,5 @@
-# nlp_project_weather_bot
+# Мууууся
+## tg: https://t.me/weather_forecast_nlp_project_bot
 
 Запросы:
 
