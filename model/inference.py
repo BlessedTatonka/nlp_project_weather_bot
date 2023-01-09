@@ -52,14 +52,15 @@ def prepare_dataset(path="data/intents"):
     return data
 
 
+
 def train_new_model(model_name):
     model = IntentsClassifier(5)
     model.to(device)
 
-    _, data = get_data()
-    train(model, data, ModelConfig.NB_EPOCHS, device, model_name)
+    _, data, labels_ord = get_data()
+    train(model, data, ModelConfig.NB_EPOCHS, device, 'model/' + model_name)
 
-    return model
+    return model, labels_ord
 
 def get_labels_ord():
     return labels_ord
@@ -73,5 +74,5 @@ def load_model(model_name='best_model'):
 
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
-labels_ord = np.array(['get_photo', 'get_weather', 'goodbye', 'greeting', 'no_category'])
+labels_ord = np.array(['get_photo', 'no_category', 'generate_photo'])
 
