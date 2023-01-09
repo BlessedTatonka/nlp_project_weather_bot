@@ -13,9 +13,9 @@ from telebot import types
 from datetime import datetime
 import src.database_processor as db
 
-os.environ['WEATHER_API_TOKEN'] = '7Z2PR8YDYTFJALLMMT7BJVLDX'
-os.environ['YDISK_API_TOKEN'] = 'OAuth y0_AgAEA7qkJR7kAADLWwAAAADUET6Z7XHjJotrSjqOLnilwyq5bx4MfIA'
-os.environ['TELEGRAM_API_TOKEN'] = '5914874422:AAE-AlgM71e_N7S4mZMxYMMYVK7770iwH8M'
+os.environ['WEATHER_API_TOKEN'] = ''
+os.environ['YDISK_API_TOKEN'] = ''
+os.environ['TELEGRAM_API_TOKEN'] = ''
 
 
 class BotConfig:
